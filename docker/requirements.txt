@@ -1,0 +1,6 @@
+git+https://github.com/blockstack/secret-sharing
+numpy
+fastapi
+uvicorn==0.22.0
+requests
+pandas

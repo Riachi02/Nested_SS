@@ -1,0 +1,8 @@
+samothrace-env
+.vscode
+.DS_Store
+__pycache__
+**/data/**.json
+**.png
+**/experiments/**
+dataset
