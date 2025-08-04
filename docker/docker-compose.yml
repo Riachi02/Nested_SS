@@ -111,6 +111,188 @@ services:
     networks:
       - ss-network
 
+  storage-node-11:
+    build: .
+    ports:
+      - 8011:8000
+    expose:
+      - 8000
+    volumes:
+      - ./src:/app
+    networks:
+      - ss-network
+  storage-node-12:
+    build: .
+    ports:
+      - 8012:8000
+    expose:
+      - 8000
+    volumes:
+      - ./src:/app
+    networks:
+      - ss-network
+  storage-node-13:
+    build: .
+    ports:
+      - 8013:8000
+    expose:
+      - 8000
+    volumes:
+      - ./src:/app
+    networks:
+      - ss-network
+  storage-node-14:
+    build: .
+    ports:
+      - 8014:8000
+    expose:
+      - 8000
+    volumes:
+      - ./src:/app
+    networks:
+      - ss-network
+  storage-node-15:
+    build: .
+    ports:
+      - 8015:8000
+    expose:
+      - 8000
+    volumes:
+      - ./src:/app
+    networks:
+      - ss-network
+  storage-node-16:
+    build: .
+    ports:
+      - 8016:8000
+    expose:
+      - 8000
+    volumes:
+      - ./src:/app
+    networks:
+      - ss-network
+  storage-node-17:
+    build: .
+    ports:
+      - 8017:8000
+    expose:
+      - 8000
+    volumes:
+      - ./src:/app
+    networks:
+      - ss-network
+  storage-node-18:
+    build: .
+    ports:
+      - 8018:8000
+    expose:
+      - 8000
+    volumes:
+      - ./src:/app
+    networks:
+      - ss-network
+  storage-node-19:
+    build: .
+    ports:
+      - 8019:8000
+    expose:
+      - 8000
+    volumes:
+      - ./src:/app
+    networks:
+      - ss-network
+  storage-node-20:
+    build: .
+    ports:
+      - 8020:8000
+    expose:
+      - 8000
+    volumes:
+      - ./src:/app
+    networks:
+      - ss-network
+  
+  storage-node-21:
+    build: .
+    ports:
+      - 8021:8000
+    expose:
+      - 8000
+    volumes:
+      - ./src:/app
+    networks:
+      - ss-network
+  storage-node-22:
+    build: .
+    ports:
+      - 8022:8000
+    expose:
+      - 8000
+    volumes:
+      - ./src:/app
+    networks:
+      - ss-network
+  storage-node-23:
+    build: .
+    ports:
+      - 8023:8000
+    expose:
+      - 8000
+    volumes:
+      - ./src:/app
+    networks:
+      - ss-network
+  storage-node-24:
+    build: .
+    ports:
+      - 8024:8000
+    expose:
+      - 8000
+    volumes:
+      - ./src:/app
+    networks:
+      - ss-network
+  storage-node-25:
+    build: .
+    ports:
+      - 8025:8000
+    expose:
+      - 8000
+    volumes:
+      - ./src:/app
+    networks:
+      - ss-network
+  storage-node-26:
+    build: .
+    ports:
+      - 8026:8000
+    expose:
+      - 8000
+    volumes:
+      - ./src:/app
+    networks:
+      - ss-network
+  storage-node-27:
+    build: .
+    ports:
+      - 8027:8000
+    expose:
+      - 8000
+    volumes:
+      - ./src:/app
+    networks:
+      - ss-network
+  storage-node-28:
+    build: .
+    ports:
+      - 8028:8000
+    expose:
+      - 8000
+    volumes:
+      - ./src:/app
+    networks:
+      - ss-network
+
 networks:
   ss-network:
     driver: bridge

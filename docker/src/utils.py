@@ -68,21 +68,22 @@ def validate_levels(levels):
 
 def pseudonymize(plaintext, keys=[], levels=None):
     if levels is None:
-        levels = [[3, 2, 0]]
+        #levels = [[3, 2, 0]]
+        levels = [[4,2,1],[3,2,0]]
     
-    print(f"[PSEUDONYMIZE] Inizio con levels: {levels}")
+    #print(f"[PSEUDONYMIZE] Inizio con levels: {levels}")
     #validate_levels(levels)
     
     # Caso base: nessuna chiave specificata → pseudonymizza tutto
     if not keys:
-        print("[PSEUDONYMIZE] Nessuna chiave specificata, pseudonymizzazione completa")
+        #print("[PSEUDONYMIZE] Nessuna chiave specificata, pseudonymizzazione completa")
         plaintext_str = json.dumps(plaintext)
         shares_metadata = _split_hierarchical(plaintext_str, levels, 0, "ROOT")
         return shares_metadata
     
     # Caso ricorsivo: elaborazione per chiavi specifiche
     n_total_shares = _calculate_total_shares(levels)
-    print(f"[PSEUDONYMIZE] Numero totale shares attesi: {n_total_shares}")
+    #print(f"[PSEUDONYMIZE] Numero totale shares attesi: {n_total_shares}")
     
     # Inizializza la struttura dati dei risultati
     result_shares = []
@@ -90,7 +91,7 @@ def pseudonymize(plaintext, keys=[], levels=None):
     if isinstance(plaintext, dict):
         for key in plaintext:
             if key in keys:
-                print(f"[PSEUDONYMIZE] Processando chiave: {key}")
+                #print(f"[PSEUDONYMIZE] Processando chiave: {key}")
                 value = plaintext[key]
                 shares_metadata = _process_value(value, keys, levels, f"KEY_{key}")
                 
@@ -114,7 +115,7 @@ def pseudonymize(plaintext, keys=[], levels=None):
     
     elif isinstance(plaintext, list):
         for i, item in enumerate(plaintext):
-            print(f"[PSEUDONYMIZE] Processando elemento lista {i}")
+            #print(f"[PSEUDONYMIZE] Processando elemento lista {i}")
             shares_metadata = _process_value(item, keys, levels, f"LIST_{i}")
             
             if not result_shares:
@@ -126,11 +127,11 @@ def pseudonymize(plaintext, keys=[], levels=None):
                 else:
                     result_shares.append([share_meta])
     
-    print(f"[PSEUDONYMIZE] Risultato finale: {len(result_shares)} share")
+    #print(f"[PSEUDONYMIZE] Risultato finale: {len(result_shares)} share")
     return result_shares
 
 def _process_value(value, keys, levels, debug_prefix):
-    print(f"[{debug_prefix}] Processando valore di tipo {type(value)}")
+    #print(f"[{debug_prefix}] Processando valore di tipo {type(value)}")
     
     if isinstance(value, dict):
         return pseudonymize(value, list(value.keys()), levels)
@@ -142,10 +143,10 @@ def _process_value(value, keys, levels, debug_prefix):
         raise ValueError(f"Tipo non supportato: {type(value)}")
 
 def _split_hierarchical(data, levels, current_level, debug_prefix):
-    print(f"[{debug_prefix}] Split livello {current_level}: {levels[current_level] if current_level < len(levels) else 'TERMINATO'}")
+    #print(f"[{debug_prefix}] Split livello {current_level}: {levels[current_level] if current_level < len(levels) else 'TERMINATO'}")
     
     if current_level >= len(levels):
-        print(f"[{debug_prefix}] Livello terminato, ritorno dati")
+        #print(f"[{debug_prefix}] Livello terminato, ritorno dati")
         return [{
             'data': data,
             'level': current_level,
@@ -155,15 +156,15 @@ def _split_hierarchical(data, levels, current_level, debug_prefix):
         }]
     
     n, t, m = levels[current_level]
-    print(f"[{debug_prefix}] Parametri livello {current_level}: n={n}, t={t}, m={m}")
+    #print(f"[{debug_prefix}] Parametri livello {current_level}: n={n}, t={t}, m={m}")
     
     # Esegui lo split del livello corrente
     shares = autobatch_split(data, t, n)
-    print(f"[{debug_prefix}] Generati {len(shares)} share base")
+    #print(f"[{debug_prefix}] Generati {len(shares)} share base")
     
     # Se m = 0, questo è l'ultimo livello
     if m == 0:
-        print(f"[{debug_prefix}] Ultimo livello, ritorno {len(shares)} share")
+        #print(f"[{debug_prefix}] Ultimo livello, ritorno {len(shares)} share")
         result = []
         for i, share in enumerate(shares):
             result.append({
@@ -178,13 +179,13 @@ def _split_hierarchical(data, levels, current_level, debug_prefix):
     
     # Seleziona randomicamente m share da splittare ulteriormente
     selected_indices = random.sample(range(n), m)
-    print(f"[{debug_prefix}] Share selezionati per split successivo: {selected_indices}")
+    #print(f"[{debug_prefix}] Share selezionati per split successivo: {selected_indices}")
     
     final_shares = []
     
     for i in range(n):
         if i in selected_indices:
-            print(f"[{debug_prefix}] Splittando share {i} nel livello successivo")
+            #print(f"[{debug_prefix}] Splittando share {i} nel livello successivo")
             parent_id = f"{debug_prefix}_L{current_level}_P{i}"
             sub_shares = _split_hierarchical(shares[i], levels, current_level + 1, f"{debug_prefix}_SUB{i}")
             
@@ -194,9 +195,9 @@ def _split_hierarchical(data, levels, current_level, debug_prefix):
                 sub_share['share_type'] = 'secondary'
             
             final_shares.extend(sub_shares)
-            print(f"[{debug_prefix}] Share {i} ha generato {len(sub_shares)} sotto-share")
+            #print(f"[{debug_prefix}] Share {i} ha generato {len(sub_shares)} sotto-share")
         else:
-            print(f"[{debug_prefix}] Share {i} rimane primario")
+            #print(f"[{debug_prefix}] Share {i} rimane primario")
             final_shares.append({
                 'data': shares[i],
                 'level': current_level,
@@ -206,7 +207,7 @@ def _split_hierarchical(data, levels, current_level, debug_prefix):
                 'share_index': i
             })
     
-    print(f"[{debug_prefix}] Livello {current_level} completato: {len(final_shares)} share finali")
+    #print(f"[{debug_prefix}] Livello {current_level} completato: {len(final_shares)} share finali")
     return final_shares
 
 def _calculate_total_shares(levels):
@@ -223,18 +224,18 @@ def _calculate_total_shares(levels):
     sub_shares = m * _calculate_total_shares(levels[1:])
     
     total = remaining_shares + sub_shares
-    print(f"[CALC] Livello con n={n}, m={m}: {remaining_shares} primari + {sub_shares} secondari = {total}")
+    #print(f"[CALC] Livello con n={n}, m={m}: {remaining_shares} primari + {sub_shares} secondari = {total}")
     return total
 
 def reconstruct(ciphertexts_metadata, keys=[], levels=None):
     if levels is None:
         levels = [[3, 2, 0]]
     
-    print(f"[RECONSTRUCT] Inizio ricostruzione con {len(ciphertexts_metadata)} share")
-    print(f"[RECONSTRUCT] Levels: {levels}")
+    #print(f"[RECONSTRUCT] Inizio ricostruzione con {len(ciphertexts_metadata)} share")
+    #print(f"[RECONSTRUCT] Levels: {levels}")
     
     if not keys:
-        print("[RECONSTRUCT] Nessuna chiave specificata, ricostruzione completa")
+        #print("[RECONSTRUCT] Nessuna chiave specificata, ricostruzione completa")
         result = _reconstruct_hierarchical(ciphertexts_metadata, levels, 0, "ROOT")
         if isinstance(result, str):
             try:
@@ -244,14 +245,14 @@ def reconstruct(ciphertexts_metadata, keys=[], levels=None):
         return result
     
     # Ricostruzione per chiavi specifiche
-    print(f"[RECONSTRUCT] Ricostruzione per chiavi: {keys}")
+    #print(f"[RECONSTRUCT] Ricostruzione per chiavi: {keys}")
     plaintext = deepcopy(ciphertexts_metadata[0])
     
     # Rimuovi i metadati per ottenere la struttura originale
     if isinstance(ciphertexts_metadata[0], dict):
         for key in ciphertexts_metadata[0]:
             if key in keys:
-                print(f"[RECONSTRUCT] Ricostruendo chiave: {key}")
+                #print(f"[RECONSTRUCT] Ricostruendo chiave: {key}")
                 key_ciphertexts = [cipher[key] for cipher in ciphertexts_metadata]
                 plaintext[key] = _reconstruct_value(key_ciphertexts, keys, levels, f"KEY_{key}")
             else:
@@ -261,19 +262,19 @@ def reconstruct(ciphertexts_metadata, keys=[], levels=None):
     
     elif isinstance(ciphertexts_metadata[0], list):
         for i in range(len(ciphertexts_metadata[0])):
-            print(f"[RECONSTRUCT] Ricostruendo elemento lista {i}")
+            #print(f"[RECONSTRUCT] Ricostruendo elemento lista {i}")
             item_ciphertexts = [cipher[i] for cipher in ciphertexts_metadata]
             plaintext[i] = _reconstruct_value(item_ciphertexts, keys, levels, f"LIST_{i}")
     
     return plaintext
 
 def _reconstruct_value(ciphertexts_metadata, keys, levels, debug_prefix):
-    print(f"[{debug_prefix}] Ricostruzione valore")
+    #print(f"[{debug_prefix}] Ricostruzione valore")
     
     # Controlla se è un oggetto con metadati
     if isinstance(ciphertexts_metadata[0], dict) and 'data' in ciphertexts_metadata[0]:
         result = _reconstruct_hierarchical(ciphertexts_metadata, levels, 0, debug_prefix)
-        print(f"[{debug_prefix}] Risultato ricostruzione: '{result}'")
+        #print(f"[{debug_prefix}] Risultato ricostruzione: '{result}'")
         
         if isinstance(result, str) and result.replace('.', '').replace('-', '').isdigit():
             try:
@@ -296,15 +297,15 @@ def _reconstruct_value(ciphertexts_metadata, keys, levels, debug_prefix):
         return ciphertexts_metadata[0]
 
 def _reconstruct_hierarchical(shares_metadata, levels, current_level, debug_prefix):
-    print(f"[{debug_prefix}] Ricostruzione livello {current_level}")
-    print(f"[{debug_prefix}] Share disponibili: {len(shares_metadata)}")
+    #print(f"[{debug_prefix}] Ricostruzione livello {current_level}")
+    #print(f"[{debug_prefix}] Share disponibili: {len(shares_metadata)}")
     
     if current_level >= len(levels):
-        print(f"[{debug_prefix}] Livello terminato")
+        #print(f"[{debug_prefix}] Livello terminato")
         return shares_metadata[0]['data'] if shares_metadata else None
     
     n, t, m = levels[current_level]
-    print(f"[{debug_prefix}] Parametri livello {current_level}: n={n}, t={t}, m={m}")
+    #print(f"[{debug_prefix}] Parametri livello {current_level}: n={n}, t={t}, m={m}")
     
     # Raggruppa gli share per tipo e livello
     primary_shares = []
@@ -321,12 +322,12 @@ def _reconstruct_hierarchical(shares_metadata, levels, current_level, debug_pref
         elif share_meta.get('level') > current_level + 1:
             sub_shares.append(share_meta)
     
-    print(f"[{debug_prefix}] Share primari disponibili: {len(primary_shares)}")
-    print(f"[{debug_prefix}] Share secondari disponibili: {len(secondary_shares)}")
+    #print(f"[{debug_prefix}] Share primari disponibili: {len(primary_shares)}")
+    #print(f"[{debug_prefix}] Share secondari disponibili: {len(secondary_shares)}")
     
     # Se m = 0, questo è l'ultimo livello
     if m == 0:
-        print(f"[{debug_prefix}] Ultimo livello, ricostruzione diretta")
+        #print(f"[{debug_prefix}] Ultimo livello, ricostruzione diretta")
         available_shares = primary_shares[:t] if len(primary_shares) >= t else primary_shares
         if len(available_shares) < t:
             raise ValueError(f"Share insufficienti per livello {current_level}: servono {t}, disponibili {len(available_shares)}")
@@ -343,7 +344,7 @@ def _reconstruct_hierarchical(shares_metadata, levels, current_level, debug_pref
     
     # Se non abbiamo abbastanza share primari, ricostruiamo da quelli secondari
     if len(collected_shares) < t:
-        print(f"[{debug_prefix}] Share primari insufficienti, ricostruzione da secondari")
+        #print(f"[{debug_prefix}] Share primari insufficienti, ricostruzione da secondari")
         
         other_shares = secondary_shares + sub_shares
 
@@ -361,21 +362,21 @@ def _reconstruct_hierarchical(shares_metadata, levels, current_level, debug_pref
             if len(collected_shares) >= t:
                 break
             
-            print(f"[{debug_prefix}] Ricostruendo share da parent {parent_id}")
+            #print(f"[{debug_prefix}] Ricostruendo share da parent {parent_id}")
             try:
                 reconstructed_share = _reconstruct_hierarchical(
                     child_shares, levels, current_level + 1, f"{debug_prefix}_SUB"
                 )
                 collected_shares.append(reconstructed_share)
-                print(f"[{debug_prefix}] Share ricostruito da {parent_id}")
+                #print(f"[{debug_prefix}] Share ricostruito da {parent_id}")
             except Exception as e:
-                print(f"[{debug_prefix}] Errore ricostruzione da {parent_id}: {e}")
+                #print(f"[{debug_prefix}] Errore ricostruzione da {parent_id}: {e}")
                 continue
     
-    print(f"[{debug_prefix}] Share totali raccolti: {len(collected_shares)}")
+    #print(f"[{debug_prefix}] Share totali raccolti: {len(collected_shares)}")
     
     if len(collected_shares) >= t:
-        print(f"[{debug_prefix}] Ricostruzione finale con {t} share")
+        #print(f"[{debug_prefix}] Ricostruzione finale con {t} share")
         return autobatch_recover(collected_shares[:t])
     else:
         raise ValueError(f"Share insufficienti per livello {current_level}: servono {t}, disponibili {len(collected_shares)}")
@@ -384,8 +385,8 @@ def distribute(id, data_with_metadata, endpoints=[], levels=None):
     if levels is None:
         levels = [[3, 2, 0]]
     
-    print(f"[DISTRIBUTE] Distribuzione di {len(data_with_metadata)} share")
-    print(f"[DISTRIBUTE] Levels: {levels}")
+    #print(f"[DISTRIBUTE] Distribuzione di {len(data_with_metadata)} share")
+    #print(f"[DISTRIBUTE] Levels: {levels}")
     
     num_shares = len(data_with_metadata)
     
@@ -421,7 +422,7 @@ def distribute(id, data_with_metadata, endpoints=[], levels=None):
             'share_data': share_data
         }
         
-        print(f"[DISTRIBUTE] Salvando share {i} su {endpoint}")
+        #print(f"[DISTRIBUTE] Salvando share {i} su {endpoint}")
         
         response = requests.post(url, json=save_data, timeout=(10, None))
         result = response.json()
@@ -440,7 +441,7 @@ def distribute(id, data_with_metadata, endpoints=[], levels=None):
     with open(TRUSTED_FILE_PATH, 'w') as f:
         json.dump(trusted_file, f)
     
-    print(f"[DISTRIBUTE] Distribuzione completata")
+    #print(f"[DISTRIBUTE] Distribuzione completata")
     return True
 
 def _extract_metadata(share_data):
@@ -462,7 +463,7 @@ def _extract_metadata(share_data):
     return None
 
 def get_secret_map(id, threshold=None):
-    print(f"[SECRET_MAP] Recupero mappa per id: {id}")
+    #print(f"[SECRET_MAP] Recupero mappa per id: {id}")
     
     with open(TRUSTED_FILE_PATH, 'r') as f:
         trusted_file = json.load(f)
@@ -471,7 +472,7 @@ def get_secret_map(id, threshold=None):
         raise ValueError(f"Nessun file trusted per id {id}")
     
     trusted = trusted_file[id]
-    print(f"[SECRET_MAP] Informazioni trusted trovate: {trusted}")
+    #print(f"[SECRET_MAP] Informazioni trusted trovate: {trusted}")
     
     with open(SERVICE_LIST_PATH, 'r') as f:
         service_list = json.load(f)
@@ -483,7 +484,7 @@ def get_secret_map(id, threshold=None):
         'doc': []
     }
     
-    print(f"[SECRET_MAP] Levels recuperati: {secret_map['levels']}")
+    #print(f"[SECRET_MAP] Levels recuperati: {secret_map['levels']}")
     
     for chunk in trusted['doc']:
         for service in service_list:
@@ -497,17 +498,17 @@ def get_secret_map(id, threshold=None):
                 })
                 break
     
-    print(f"[SECRET_MAP] URLs recuperati: {len(secret_map['doc'])}")
+    #print(f"[SECRET_MAP] URLs recuperati: {len(secret_map['doc'])}")
     return secret_map
 
 def reconstruct_from_secret_map(secret_map, threshold=None, keys=[]):
     levels = secret_map.get('levels', [[3, 2, 0]])
-    print(f"[RECONSTRUCT_MAP] Livelli dalla mappa: {levels}")
+    #print(f"[RECONSTRUCT_MAP] Livelli dalla mappa: {levels}")
     
     # Recupera tutti gli share con metadati
     all_shares = []
     
-    print(f"[RECONSTRUCT_MAP] Recupero {len(secret_map['doc'])} share")
+    #print(f"[RECONSTRUCT_MAP] Recupero {len(secret_map['doc'])} share")
     for i, doc_info in enumerate(secret_map['doc']):
         try:
             if isinstance(doc_info, dict):
@@ -515,7 +516,7 @@ def reconstruct_from_secret_map(secret_map, threshold=None, keys=[]):
             else:
                 url = doc_info  # Retrocompatibilità
             
-            print(f"[RECONSTRUCT_MAP] Recuperando share {i} da {url}")
+            #print(f"[RECONSTRUCT_MAP] Recuperando share {i} da {url}")
             response = requests.get(url, timeout=(10, None))
             share_data = response.json()
             
@@ -526,12 +527,12 @@ def reconstruct_from_secret_map(secret_map, threshold=None, keys=[]):
                 # Retrocompatibilità
                 all_shares.append(share_data)
                 
-            print(f"[RECONSTRUCT_MAP] Share {i} recuperato con successo")
+            #print(f"[RECONSTRUCT_MAP] Share {i} recuperato con successo")
         except Exception as e:
-            print(f"[RECONSTRUCT_MAP] Errore nel recupero share {i}: {e}")
+            #print(f"[RECONSTRUCT_MAP] Errore nel recupero share {i}: {e}")
             continue
     
-    print(f"[RECONSTRUCT_MAP] Share totali recuperati: {len(all_shares)}")
+    #print(f"[RECONSTRUCT_MAP] Share totali recuperati: {len(all_shares)}")
     
     # Ricostruisci usando la logica gerarchica con metadati
     return reconstruct(all_shares, keys, levels)

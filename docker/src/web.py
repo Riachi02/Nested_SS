@@ -50,6 +50,7 @@ def save(data: dict):
 
 @app.post("/split")
 def split(split_input: SplitInput):
+    print(f"Received split request with input: {split_input}")
     plaintext = split_input.plaintext
     id = plaintext.pop('id')
     config = split_input.config
