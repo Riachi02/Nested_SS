@@ -5,4 +5,5 @@ __pycache__
 **/data/**.json
 **.png
 **/experiments/**
+**/text_110.txt
 dataset
