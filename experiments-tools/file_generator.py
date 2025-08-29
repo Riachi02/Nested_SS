@@ -1,9 +1,16 @@
 import os
 import random
 import string
+import argparse
+
+data_parser = argparse.ArgumentParser()
+data_parser.add_argument("-n", "--name", help="File name", required=True)
+data_parser.add_argument("-s", "--size", help="File size in MB", required=True)
+
+args = data_parser.parse_args()
 
 def generate_text_file(filename: str, size_mb: float):
-    size_mb = size_mb - 0.5
+#    size_mb = size_mb - 0.5
     size_bytes = int(size_mb * 1024 * 1024)  # convert MB to bytes
 
     # caratteri stampabili, esclusi \n e \r per precisione nella dimensione
@@ -27,5 +34,5 @@ def generate_text_file(filename: str, size_mb: float):
 # generate_text_file("/txts/text_70.txt", 67.3)
 # generate_text_file("/txts/text_90.txt", 86.3)
 # generate_text_file("/txts/text_110.txt", 105.4)
-generate_text_file("text_13.txt", 23.5)
+generate_text_file(args.name, float(args.size))
 

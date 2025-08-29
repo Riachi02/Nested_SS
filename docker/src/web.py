@@ -50,7 +50,8 @@ def save(data: dict):
 
 @app.post("/split")
 def split(split_input: SplitInput):
-    print(f"Received split request with input: {split_input}")
+    input_text = split_input.plaintext["data"]["text"][:100]
+#    print(f"Received split request with input {input_text}")
     plaintext = split_input.plaintext
     id = plaintext.pop('id')
     config = split_input.config
@@ -137,4 +138,4 @@ def reconstruct(reconstruct_input: ReconstructInput):
         ['start', 'end', 'elapsed']
     )
     
-    return {"reconstructed": plaintext}
+    return {"reconstructed": plaintext["text"][:100]}
