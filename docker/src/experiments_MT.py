@@ -121,9 +121,10 @@ for i in range(50):
         print(response.json())
     except Exception as e:
         print(f"An exception occurred while trying to send data to message broker: {e}.")
-
-    n_shares_to_rm = split_payload["config"]["levels"][0][0] - split_payload["config"]["levels"][0][2] - split_payload["config"]["levels"][0][1] + 1
-    remove_shares(0, n_shares_to_rm)
+    
+    if (len(split_payload["config"]["levels"]) > 1):
+        n_shares_to_rm = split_payload["config"]["levels"][0][0] - split_payload["config"]["levels"][0][2] - split_payload["config"]["levels"][0][1] + 1
+        remove_shares(0, n_shares_to_rm)
 
     try:
         response = requests.post("http://localhost:8000/reconstruct", json={"id": "123", "config": retrieve_payload["config"]})
